@@ -1,0 +1,32 @@
+C++ OpenCV Ubuntu
+####################
+Cài đặt (làm lần lượt từng bước, bước 7 (build) tốn khá nhiều thời gian)
+sudo apt update && sudo apt install -y cmake g++ wget unzip
+
+sudo apt install liggtk2.0-dev pkg-config
+
+wget -O opencv.zip https://github.com/opencv/opencv/archive/4.x.zip
+
+unzip opencv.zip
+
+mkdir -p build && cd build
+
+cmake -DOPENCV_GENERATE_PKGCONFIG=ON -DWITH_GTK=ON ../opencv-4.x
+
+cmake --build .
+
+sudo make install
+####################
+
+Biên dịch: 
+g++ sourcefile.cpp -o outputfile `pkg-config --cflags --libs opencv4`
+Hoặc có thể đặt 1 biến shell như sau (Lưu ý rằng biến shell sẽ không còn sau khi ta thoát terminal): 
+FLAGS1="$(pkg-config --cflags --libs opencv4)"
+sau đó biên dịch: 
+g++ sourcefile.cpp -o outputfile $FLAGS1
+(đỡ phải viết dài nhiều lần, FLAGS1 chỉ là 1 tên biến chọn bừa, không quan trọng)
+
+Nếu chương trình có sử dụng OpenMP, biên dịch như sau:
+g++ sourcefile.cpp -o outputfile -fopenmp `pkg-config --cflags --libs opencv4`
+Hoặc
+g++ sourcefile.cpp -o outputfile -fopenmp $FLAGS1
