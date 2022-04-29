@@ -44,7 +44,7 @@ cv::Mat convolve2d(cv::Mat im, cv::Mat kernel, int numThreads) {
     output1 = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_64FC1);
     flip(kernel, fkernel, -1);
     double val;
-    #pragma omp parallel for collapse(2) shared(im, fkernel, output1) private(val) schedule(static)
+    #pragma omp parallel for collapse(2) shared(im, fkernel, output1) private(val)
     for (int i = dx; i < im.rows-dx; ++i) {
         for (int j = dy; j < im.cols-dy; ++j) {
             val = 0;
@@ -63,11 +63,11 @@ std::tuple<cv::Mat, cv::Mat> Sobel(cv::Mat im, int numThreads) {
     omp_set_num_threads(numThreads);
     cv::Mat Kx = (cv::Mat_<double>(3,3) << -1,0,1,-2,0,2,-1,0,1);
     cv::Mat Ky = (cv::Mat_<double>(3,3) << -1,-2,-1,0,0,0,1,2,1);
-    cv::Mat Gx = convolve2d(im, Kx);
-    cv::Mat Gy = convolve2d(im, Ky);
+    cv::Mat Gx = convolve2d(im, Kx, numThreads);
+    cv::Mat Gy = convolve2d(im, Ky, numThreads);
     cv::Mat gradient = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_64FC1);
     cv::Mat theta = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_64FC1);
-    #pragma omp parallel for collapse(2) shared(gradient, theta, Gx, Gy) schedule(static)
+    #pragma omp parallel for collapse(2) shared(gradient, theta, Gx, Gy)
     for (int i = 0; i < im.rows; ++i) {
         for (int j = 0; j < im.cols; ++j) {
             gradient.at<double>(i,j) = sqrt(pow(Gx.at<double>(i,j), 2) + pow(Gy.at<double>(i,j), 2));
@@ -76,7 +76,7 @@ std::tuple<cv::Mat, cv::Mat> Sobel(cv::Mat im, int numThreads) {
     }
     double minValueGradient, maxValueGradient;
     minMaxLoc(gradient, &minValueGradient, &maxValueGradient);
-    #pragma omp parallel for collapse(2) shared(gradient) schedule(static)
+    #pragma omp parallel for collapse(2) shared(gradient)
     for (int i = 0; i < gradient.rows; ++i) {
         for (int j = 0; j < gradient.cols; ++j) {
             gradient.at<double>(i,j) = gradient.at<double>(i,j)/maxValueGradient * 255.0;
@@ -89,11 +89,11 @@ std::tuple<cv::Mat, cv::Mat> Prewitt(cv::Mat im, int numThreads) {
     omp_set_num_threads(numThreads);
     cv::Mat Kx = (cv::Mat_<double>(3,3) << -1,0,1,-1,0,1,-1,0,1);
     cv::Mat Ky = (cv::Mat_<double>(3,3) << -1,-1,-1,0,0,0,1,1,1);
-    cv::Mat Gx = convolve2d(im, Kx);
-    cv::Mat Gy = convolve2d(im, Ky);
+    cv::Mat Gx = convolve2d(im, Kx, numThreads);
+    cv::Mat Gy = convolve2d(im, Ky, numThreads);
     cv::Mat gradient = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_64FC1);
     cv::Mat theta = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_64FC1);
-    #pragma omp parallel for collapse(2) shared(gradient, theta, Gx, Gy) schedule(static)
+    #pragma omp parallel for collapse(2) shared(gradient, theta, Gx, Gy)
     for (int i = 0; i < im.rows; ++i) {
         for (int j = 0; j < im.cols; ++j) {
             gradient.at<double>(i,j) = sqrt(pow(Gx.at<double>(i,j), 2) + pow(Gy.at<double>(i,j), 2));
@@ -102,7 +102,7 @@ std::tuple<cv::Mat, cv::Mat> Prewitt(cv::Mat im, int numThreads) {
     }
     double minValueGradient, maxValueGradient;
     minMaxLoc(gradient, &minValueGradient, &maxValueGradient);
-    #pragma omp parallel for collapse(2) shared(gradient) schedule(static)
+    #pragma omp parallel for collapse(2) shared(gradient)
     for (int i = 0; i < gradient.rows; ++i) {
         for (int j = 0; j < gradient.cols; ++j) {
             gradient.at<double>(i,j) = gradient.at<double>(i,j)/maxValueGradient * 255.0;

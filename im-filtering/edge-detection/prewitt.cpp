@@ -6,7 +6,7 @@
 using namespace std;
 using namespace cv;
 
-Mat im, gray, gradient, gradient2, theta;
+Mat gray, gradient, gradient2, theta;
 
 void srlPrewitt() {
     Mat Kx = (cv::Mat_<double>(3,3) << -1,0,1,-1,0,1,-1,0,1);
@@ -37,7 +37,7 @@ void prlPrewitt() {
     Mat Gy = convolve2d(gray, Ky);
     gradient = Mat::zeros(Size(gray.cols, gray.rows), CV_64FC1);
     theta = Mat::zeros(Size(gray.cols, gray.rows), CV_64FC1);
-    #pragma omp parallel for collapse(2) shared(gradient, theta, Gx, Gy) schedule(static)
+    #pragma omp parallel for collapse(2) shared(gradient, theta, Gx, Gy)
     for (int i = 0; i < gray.rows; ++i) {
         for (int j = 0; j < gray.cols; ++j) {
             gradient.at<double>(i,j) = sqrt(pow(Gx.at<double>(i,j), 2) + pow(Gy.at<double>(i,j), 2));
@@ -46,7 +46,7 @@ void prlPrewitt() {
     }
     double minValueGradient, maxValueGradient;
     minMaxLoc(gradient, &minValueGradient, &maxValueGradient);
-    #pragma omp parallel for collapse(2) shared(gradient) schedule(static)
+    #pragma omp parallel for collapse(2) shared(gradient)
     for (int i = 0; i < gradient.rows; ++i) {
         for (int j = 0; j < gradient.cols; ++j) {
             gradient.at<double>(i,j) = gradient.at<double>(i,j)/maxValueGradient * 255.0;
@@ -54,18 +54,39 @@ void prlPrewitt() {
     }
 }
 
+tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int iters=10) {
+    vector<string> columnHeaders;
+    vector<double> execTimes;
+    for (int s = minSize; s <= maxSize; s*=2) {
+        string sizestr = to_string(s);
+        for (int t = 1; t < 5; ++t) {
+            string path = "../../img/test" + sizestr + ".jpg";
+            Mat im = imread(path, IMREAD_GRAYSCALE);
+            double execTime, start, end;
+            execTime = 0;
+            for (int i = 0; i < iters; ++i) {
+                start = omp_get_wtime();
+                Prewitt(im, t);
+                end = omp_get_wtime();
+                execTime += end-start;
+            }
+            execTime /= iters;
+            execTimes.push_back(execTime);
+        }
+        columnHeaders.push_back(sizestr+"x"+sizestr);
+    }
+    return {columnHeaders, execTimes};
+}
+
 int main() {
     string path;
     cout << "Path of image: ";
     cin >> path;
-    im = imread(path);
-    gray = RGB2GRAY(im);
+    gray = imread(path, IMREAD_GRAYSCALE);
     prlPrewitt();
-    // tuple<Mat,Mat> res = Prewitt(gray);
-    // gradient = get<0>(res);
     gradient.convertTo(gradient2, CV_8UC1);
     showImage(gradient2);
-    cout << "Execution time (serial):\t" << calExecTime(&srlPrewitt) << "\n";
-    cout << "Execution time (parallel):\t" << calExecTime(&prlPrewitt) << "\n";
+    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 1);
+    writeToCSVFile("../../csv/prewitt.csv", execTimeData);
     return 0;
 }

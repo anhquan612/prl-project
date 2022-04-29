@@ -6,7 +6,7 @@
 using namespace std;
 using namespace cv;
 
-Mat im, gray, gradient, gradient2, theta;
+Mat gray, gradient, gradient2, theta;
 
 void srlSobel() {
     Mat Kx = (Mat_<double>(3,3) << -1,0,1,-2,0,2,-1,0,1);
@@ -54,18 +54,39 @@ void prlSobel() {
     }
 }
 
+tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int iters=10) {
+    vector<string> columnHeaders;
+    vector<double> execTimes;
+    for (int s = minSize; s <= maxSize; s*=2) {
+        string sizestr = to_string(s);
+        for (int t = 1; t < 5; ++t) {
+            string path = "../../img/test" + sizestr + ".jpg";
+            Mat im = imread(path, IMREAD_GRAYSCALE);
+            double execTime, start, end;
+            execTime = 0;
+            for (int i = 0; i < iters; ++i) {
+                start = omp_get_wtime();
+                Sobel(im, t);
+                end = omp_get_wtime();
+                execTime += end-start;
+            }
+            execTime /= iters;
+            execTimes.push_back(execTime);
+        }
+        columnHeaders.push_back(sizestr+"x"+sizestr);
+    }
+    return {columnHeaders, execTimes};
+}
+
 int main() {
     string path;
     cout << "Path of image: ";
     cin >> path;
-    im = imread(path);
-    gray = RGB2GRAY(im);
+    gray = imread(path, IMREAD_GRAYSCALE);
     prlSobel();
-    // tuple<Mat,Mat> res = Sobel(gray);
-    // gradient = get<0>(res);
     gradient.convertTo(gradient2, CV_8UC1);
     showImage(gradient2);
-    cout << "Execution time (serial):\t" << calExecTime(&srlSobel) << "\n";
-    cout << "Execution time (parallel):\t" << calExecTime(&prlSobel) << "\n";
+    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 1);
+    writeToCSVFile("../../csv/sobel.csv", execTimeData);
     return 0;
 }
