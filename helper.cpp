@@ -20,14 +20,14 @@ double calExecTime(void (*func)(), int iters) {
 }
 
 void writeToCSVFile(std::string path, std::tuple<std::vector<std::string>, std::vector<double>> execTimeData) {
-    std::vector<std::string> columnHeaders = std::get<0>(execTimeData);
+    std::vector<std::string> rowHeaders = std::get<0>(execTimeData);
     std::vector<double> execTimes = std::get<1>(execTimeData);
     std::fstream fout;
     fout.open(path, std::ios::out);
     int maxThreads = 4;
     // write header
     fout << " , ";
-    for (int t = 1; t <= maxThreads; ++t) {
+    for (int t = 1; t <= maxThreads; t*=2) {
         std::string header = "threads=" + std::__cxx11::to_string(t);
         if (t != maxThreads) {
             fout << header << ", ";
@@ -37,10 +37,10 @@ void writeToCSVFile(std::string path, std::tuple<std::vector<std::string>, std::
         }
     }
     for (unsigned i = 0; i < execTimes.size(); ++i) {
-        if (i % maxThreads == 0) {
-            fout << columnHeaders.at(i/maxThreads) << ", ";
+        if (i % (maxThreads-1) == 0) {
+            fout << rowHeaders.at(i/(maxThreads-1)) << ", ";
         }
-        if ((i+1) % maxThreads != 0) {
+        if ((i+1) % (maxThreads-1) != 0) {
             fout << execTimes.at(i) << ", ";
         }
         else {

@@ -110,3 +110,21 @@ std::tuple<cv::Mat, cv::Mat> Prewitt(cv::Mat im, int numThreads) {
     }
     return {gradient, theta};
 }
+
+// cv::Mat Gaussian(cv::Mat im, int ksize, double sigma) {
+
+// }
+
+cv::Mat LaplaceSPN(cv::Mat im, double weight, int numThreads) {
+    omp_set_num_threads(numThreads);
+    cv::Mat output1 = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_64FC1);
+    cv::Mat kernel = (cv::Mat_<double>(3,3) << 0,1,0,1,-4,1,0,1,0);
+    cv::Mat convolved = convolve2d(im, kernel, numThreads);
+    #pragma omp parallel for collapse(2) shared(output1, im, convolved)
+    for (int i = 0; i < im.rows; ++i) {
+        for (int j = 0; j < im.cols; ++j) {
+            output1.at<double>(i,j) = im.at<uchar>(i,j) - weight*convolved.at<double>(i,j);
+        }
+    }
+    return output1;
+}

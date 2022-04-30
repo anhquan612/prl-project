@@ -55,11 +55,11 @@ void prlPrewitt() {
 }
 
 tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int iters=10) {
-    vector<string> columnHeaders;
+    vector<string> rowHeaders;
     vector<double> execTimes;
     for (int s = minSize; s <= maxSize; s*=2) {
         string sizestr = to_string(s);
-        for (int t = 1; t < 5; ++t) {
+        for (int t = 1; t < 5; t*=2) {
             string path = "../../img/test" + sizestr + ".jpg";
             Mat im = imread(path, IMREAD_GRAYSCALE);
             double execTime, start, end;
@@ -73,9 +73,9 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
             execTime /= iters;
             execTimes.push_back(execTime);
         }
-        columnHeaders.push_back(sizestr+"x"+sizestr);
+        rowHeaders.push_back(sizestr+"x"+sizestr);
     }
-    return {columnHeaders, execTimes};
+    return {rowHeaders, execTimes};
 }
 
 int main() {

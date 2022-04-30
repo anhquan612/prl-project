@@ -24,7 +24,13 @@ std::tuple<cv::Mat, cv::Mat> Sobel(cv::Mat im, int numThreads=4);
 // Prewitt operator
 std::tuple<cv::Mat, cv::Mat> Prewitt(cv::Mat im, int numThreads=4);
 
-// Canny edge detector
-cv::Mat Canny(cv::Mat im, int lowerThreshold, int higherThreshold, int numThreads=4);
+// Gaussian filter
+cv::Mat Gaussian(cv::Mat im, int ksize, int sigma, int numThreads=4);
+
+// Sharpening image using Laplace filter
+cv::Mat LaplaceSPN(cv::Mat im, double weight, int numThreads=4);
+
+// Unsharp masking
+cv::Mat USM(cv::Mat im, int a, int sigma, int numThreads=4);
 
 #endif
