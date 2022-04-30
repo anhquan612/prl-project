@@ -30,7 +30,10 @@ cv::Mat Gaussian(cv::Mat im, int ksize, int sigma, int numThreads=4);
 // Sharpening image using Laplace filter
 cv::Mat LaplaceSPN(cv::Mat im, double weight, int numThreads=4);
 
-// Unsharp masking
-cv::Mat USM(cv::Mat im, int a, int sigma, int numThreads=4);
+// Image smoothing/blurring by averaging
+cv::Mat blurByAvg(cv::Mat im, int ksize, int numThreads=4);
+
+// Median blurring
+cv::Mat medBlur(cv::Mat im, int ksize, int numThreads=4);
 
 #endif

@@ -128,3 +128,52 @@ cv::Mat LaplaceSPN(cv::Mat im, double weight, int numThreads) {
     }
     return output1;
 }
+
+cv::Mat blurByAvg(cv::Mat im, int ksize, int numThreads) {
+    omp_set_num_threads(numThreads);
+    cv::Mat output1;
+    cv::Mat kernel = cv::Mat::ones(cv::Size(ksize, ksize), CV_64FC1);
+    int ksize2 = ksize*ksize;
+    #pragma omp parallel for collapse(2) shared(kernel)
+    for (int i = 0; i < ksize; ++i) {
+        for (int j = 0; j < ksize; ++j) {
+            kernel.at<double>(i,j) /= ksize2;
+        }
+    }
+    output1 = convolve2d(im, kernel, numThreads);
+    return output1;
+}
+
+cv::Mat medBlur(cv::Mat im, int ksize, int numThreads) {
+    omp_set_num_threads(numThreads);
+    cv::Mat output1;
+    output1 = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_8UC1);
+    std::vector<double> mask;
+    int idx = ksize/2;
+    #pragma omp parallel for collapse(2) shared(output1, im) private(mask)
+    for (int i = 0; i < im.rows; ++i) {
+        for (int j = 0; j < im.cols; ++j) {
+            for (int k = 0; k < ksize; ++k) {
+                if (i+k-idx < 0 || i+k-idx > im.rows-1) {
+                    for (int l = 0; l < ksize; ++l) {
+                        mask.push_back(0);
+                    }
+                }
+                else {
+                    if (j+k-idx < 0 || j+idx > im.cols-1) {
+                        mask.push_back(0);
+                    }
+                    else {
+                        for (int l = 0; l < ksize; ++l) {
+                            mask.push_back(im.at<uchar>(i+k-idx,j+l-idx));
+                        }
+                    }
+                }
+            }
+            std::sort(mask.begin(), mask.end());
+            output1.at<uchar>(i,j) = mask.at(mask.size()/2);
+            mask.clear();
+        }
+    }
+    return output1;
+}
