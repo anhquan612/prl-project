@@ -1,6 +1,6 @@
 #include <iostream>
-#include "../../helper.h"
-#include "../../preprocessing.h"
+#include "../helper.h"
+#include "../preprocessing.h"
 
 using namespace std;
 using namespace cv;
@@ -27,7 +27,7 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
     for (int s = minSize; s <= maxSize; s*=2) {
         string sizestr = to_string(s);
         for (int t = 1; t < 5; t*=2) {
-            string path = "../../img/test" + sizestr + ".jpg";
+            string path = "../img/test" + sizestr + ".jpg";
             Mat im = imread(path, IMREAD_GRAYSCALE);
             double execTime, start, end;
             execTime = 0;
@@ -53,6 +53,6 @@ int main() {
     averagingSMT();
     showImage(blurred2);
     tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
-    writeToCSVFile("../../csv/averagingblur.csv", execTimeData);
+    writeToCSVFile("../csv/averagingblur.csv", execTimeData);
     return 0;
 }

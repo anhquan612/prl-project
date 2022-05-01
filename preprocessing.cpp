@@ -38,13 +38,13 @@ cv::Mat RGB2BIN(cv::Mat im, int mythreshold, int numThreads) {
 
 cv::Mat convolve2d(cv::Mat im, cv::Mat kernel, int numThreads) {
     omp_set_num_threads(numThreads);
+    cv::Mat output1, fkernel;
     const int dx = (kernel.rows-1)/2;
     const int dy = (kernel.cols-1)/2;
-    cv::Mat output1, fkernel;
     output1 = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_64FC1);
     flip(kernel, fkernel, -1);
     double val;
-    #pragma omp parallel for collapse(2) shared(im, fkernel, output1) private(val)
+    #pragma omp parallel for shared(im, fkernel, output1) private(val)
     for (int i = dx; i < im.rows-dx; ++i) {
         for (int j = dy; j < im.cols-dy; ++j) {
             val = 0;
@@ -110,10 +110,6 @@ std::tuple<cv::Mat, cv::Mat> Prewitt(cv::Mat im, int numThreads) {
     }
     return {gradient, theta};
 }
-
-// cv::Mat Gaussian(cv::Mat im, int ksize, double sigma) {
-
-// }
 
 cv::Mat LaplaceSPN(cv::Mat im, double weight, int numThreads) {
     omp_set_num_threads(numThreads);
