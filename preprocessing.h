@@ -3,6 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <omp.h>
+#include <math.h>
 #include <tuple>
 #include <vector>
 
@@ -32,5 +33,8 @@ cv::Mat blurByAvg(cv::Mat im, int ksize, int numThreads=4);
 
 // Median blurring
 cv::Mat medBlur(cv::Mat im, int ksize, int numThreads=4);
+
+// Gaussian filter
+cv::Mat Gaussian(cv::Mat im, int ksize, double sigma, int numThreads=4);
 
 #endif

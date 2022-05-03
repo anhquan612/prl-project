@@ -173,3 +173,32 @@ cv::Mat medBlur(cv::Mat im, int ksize, int numThreads) {
     }
     return output1;
 }
+
+cv::Mat GaussianKernel(int ksize, double sigma, int numThreads=4) {
+    std::vector<std::vector<double>> x, y;
+    cv::Mat kernel = cv::Mat::zeros(cv::Size(ksize, ksize), CV_64FC1);
+    int size = ksize/2;
+    double norm = 1/(2.0*M_PI*pow(sigma,2));
+    for (int i = -size; i < size+1; ++i) {
+        std::vector<double> el4x, el4y;
+        for (int j = -size; j < size+1; ++j) {
+            el4x.push_back((double) i);
+            el4y.push_back((double) j);
+        }
+        x.push_back(el4x);
+        y.push_back(el4y);
+    }
+    omp_set_num_threads(numThreads);
+    #pragma omp parallel for collapse(2) shared(kernel)
+    for (int i = 0; i < ksize; ++i) {
+        for (int j = 0; j < ksize; ++j) {
+            kernel.at<double>(i,j) = norm * exp(-((pow(x.at(i).at(j),2)+pow(y.at(i).at(j),2))/(2.0*pow(sigma,2))));
+        }
+    }
+    return kernel;
+}
+
+cv::Mat Gaussian(cv::Mat im, int ksize, double sigma, int numThreads) {
+    cv::Mat kernel = GaussianKernel(ksize, sigma, numThreads);
+    return convolve2d(im, kernel, numThreads);
+}

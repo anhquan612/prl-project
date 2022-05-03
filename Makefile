@@ -27,3 +27,6 @@ averaging: ./smoothing/averaging.cpp $(REQUIRED)
 
 median: ./smoothing/median.cpp $(REQUIRED)
 	g++ ./smoothing/median.cpp $(REQUIRED) -o median $(CPPFLAGS)
+
+gaussian: ./smoothing/gaussian.cpp $(REQUIRED)
+	g++ ./smoothing/gaussian.cpp $(REQUIRED) -o gaussian $(CPPFLAGS)
