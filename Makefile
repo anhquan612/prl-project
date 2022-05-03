@@ -22,6 +22,9 @@ prewitt: ./edge-detection/prewitt.cpp $(REQUIRED)
 laplace: ./sharpening/laplace.cpp $(REQUIRED)
 	g++ ./sharpening/laplace.cpp $(REQUIRED) -o laplace $(CPPFLAGS)
 
+usm: ./sharpening/usm.cpp $(REQUIRED)
+	g++ ./sharpening/usm.cpp $(REQUIRED) -o usm $(CPPFLAGS)
+
 averaging: ./smoothing/averaging.cpp $(REQUIRED)
 	g++ ./smoothing/averaging.cpp $(REQUIRED) -o averaging $(CPPFLAGS)
 

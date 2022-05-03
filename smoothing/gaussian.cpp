@@ -67,6 +67,6 @@ int main() {
     res.convertTo(res2, CV_8UC1);
     showImage(res2);
     tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 1);
-    writeToCSVFile("/csv/gaussian.csv", execTimeData);
+    writeToCSVFile("csv/gaussian.csv", execTimeData);
     return 0;
 }

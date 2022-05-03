@@ -28,6 +28,9 @@ std::tuple<cv::Mat, cv::Mat> Prewitt(cv::Mat im, int numThreads=4);
 // Sharpening image using Laplace filter
 cv::Mat LaplaceSPN(cv::Mat im, double weight, int numThreads=4);
 
+// Unsharp masking
+cv::Mat USM(cv::Mat im, double sigma, double amount=0.5, int radius=5, int numThreads=4);
+
 // Image smoothing/blurring by averaging
 cv::Mat blurByAvg(cv::Mat im, int ksize, int numThreads=4);
 

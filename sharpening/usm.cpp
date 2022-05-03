@@ -5,30 +5,16 @@
 using namespace std;
 using namespace cv;
 
-Mat im, output1, output2;
-double weight = 0.1;
-
-void srlLaplaceSPN() {
+Mat usm1(Mat im, double sigma, int radius=5, double amount=0.5) {
+    Mat blurred, mask, output1;
     output1 = Mat::zeros(Size(im.cols, im.rows), CV_64FC1);
-    Mat kernel = (Mat_<double>(3,3) << 0,1,0,1,-4,1,0,1,0);
-    Mat convolved = convolve2d(im, kernel);
+    blurred = Gaussian(im, radius, sigma);
     for (int i = 0; i < im.rows; ++i) {
         for (int j = 0; j < im.cols; ++j) {
-            output1.at<double>(i,j) = im.at<uchar>(i,j) - weight*convolved.at<double>(i,j);
+            output1.at<double>(i,j) = (amount+1)*im.at<uchar>(i,j) - amount*blurred.at<double>(i,j);
         }
     }
-}
-
-void prlLaplaceSPN() {
-    output1 = Mat::zeros(Size(im.cols, im.rows), CV_64FC1);
-    Mat kernel = (Mat_<double>(3,3) << 0,1,0,1,-4,1,0,1,0);
-    Mat convolved = convolve2d(im, kernel);
-    #pragma omp parallel for collapse(2) shared(output1, im, convolved)
-    for (int i = 0; i < im.rows; ++i) {
-        for (int j = 0; j < im.cols; ++j) {
-            output1.at<double>(i,j) = im.at<uchar>(i,j) - weight*convolved.at<double>(i,j);
-        }
-    }
+    return output1;
 }
 
 tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int iters=10) {
@@ -43,7 +29,7 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
             execTime = 0;
             for (int i = 0; i < iters; ++i) {
                 start = omp_get_wtime();
-                LaplaceSPN(im, 0.1, t);
+                USM(im, 7.0, 0.5, 5, t);
                 end = omp_get_wtime();
                 execTime += end-start;
             }
@@ -56,14 +42,17 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
 }
 
 int main() {
+    Mat im, res, res2;
     string path;
     cout << "Path of image: ";
     cin >> path;
+    // path = "img/test.jpg";
     im = imread(path, IMREAD_GRAYSCALE);
-    prlLaplaceSPN();
-    output1.convertTo(output2, CV_8UC1);
-    showImage(output2);
-    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 1);
-    writeToCSVFile("csv/laplacespn.csv", execTimeData);
+    showImage(im);
+    res = USM(im, 5.0);
+    res.convertTo(res2, CV_8UC1);
+    showImage(res2);
+    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
+    writeToCSVFile("csv/usm.csv", execTimeData);
     return 0;
 }

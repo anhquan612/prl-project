@@ -125,6 +125,20 @@ cv::Mat LaplaceSPN(cv::Mat im, double weight, int numThreads) {
     return output1;
 }
 
+cv::Mat USM(cv::Mat im, double sigma, double amount, int radius, int numThreads) {
+    omp_set_num_threads(numThreads);
+    cv::Mat blurred, mask, output1;
+    output1 = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_64FC1);
+    blurred = Gaussian(im, radius, sigma, numThreads);
+    #pragma omp parallel for collapse(2) shared(output1, im, blurred)
+    for (int i = 0; i < im.rows; ++i) {
+        for (int j = 0; j < im.cols; ++j) {
+            output1.at<double>(i,j) = (amount+1)*im.at<uchar>(i,j) - amount*blurred.at<double>(i,j);
+        }
+    }
+    return output1;
+}
+
 cv::Mat blurByAvg(cv::Mat im, int ksize, int numThreads) {
     omp_set_num_threads(numThreads);
     cv::Mat output1;
