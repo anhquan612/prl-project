@@ -57,13 +57,18 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
 
 int main() {
     string path;
+    int ev;
     cout << "Path of image: ";
     cin >> path;
     im = imread(path, IMREAD_GRAYSCALE);
     prlLaplaceSPN();
     output1.convertTo(output2, CV_8UC1);
-    showImage(output2);
-    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 1);
-    writeToCSVFile("csv/laplacespn.csv", execTimeData);
+    showImage(im, output2);
+    cout << "Calculate execution time? (0/1) ";
+    cin >> ev;
+    if (ev == 1) {
+        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 1);
+        writeToCSVFile("csv/laplacespn.csv", execTimeData);
+    }
     return 0;
 }

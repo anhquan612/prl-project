@@ -44,15 +44,19 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
 int main() {
     Mat im, res, res2;
     string path;
+    int ev;
     cout << "Path of image: ";
     cin >> path;
     // path = "img/test.jpg";
     im = imread(path, IMREAD_GRAYSCALE);
-    showImage(im);
     res = USM(im, 5.0);
     res.convertTo(res2, CV_8UC1);
-    showImage(res2);
-    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
-    writeToCSVFile("csv/usm.csv", execTimeData);
+    showImage(im, res2);
+    cout << "Calculate execution time? (0/1) ";
+    cin >> ev;
+    if (ev == 1) {
+        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
+        writeToCSVFile("csv/usm.csv", execTimeData);
+    }
     return 0;
 }

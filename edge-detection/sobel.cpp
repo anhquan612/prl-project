@@ -80,13 +80,18 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
 
 int main() {
     string path;
+    int ev;
     cout << "Path of image: ";
     cin >> path;
     gray = imread(path, IMREAD_GRAYSCALE);
     prlSobel();
     gradient.convertTo(gradient2, CV_8UC1);
-    showImage(gradient2);
-    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 1);
-    writeToCSVFile("csv/sobel.csv", execTimeData);
+    showImage(gray, gradient2);
+    cout << "Calculate execution time? (0/1) ";
+    cin >> ev;
+    if (ev == 1) {
+        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 1);
+        writeToCSVFile("csv/sobel.csv", execTimeData);
+    }
     return 0;
 }

@@ -1,7 +1,8 @@
 #include "helper.h"
 
-void showImage(cv::Mat im) {
-    cv::imshow("show image", im);
+void showImage(cv::Mat im, cv::Mat output1) {
+    cv::imshow("Original image", im);
+    cv::imshow("Outpu1", output1);
     cv::waitKey(0);
     cv::destroyAllWindows();
 }

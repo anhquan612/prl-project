@@ -60,13 +60,18 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
 int main() {
     Mat im, res, res2;
     string path;
+    int ev;
     cout << "Path of image: ";
     cin >> path;
     im = imread(path, IMREAD_GRAYSCALE);
     res = Gaussian(im, 5, 1.4);
     res.convertTo(res2, CV_8UC1);
-    showImage(res2);
-    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 1);
-    writeToCSVFile("csv/gaussian.csv", execTimeData);
+    showImage(im, res2);
+    cout << "Calculate execution time? (0/1) ";
+    cin >> ev;
+    if (ev == 1) {
+        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
+        writeToCSVFile("csv/gaussian.csv", execTimeData);
+    }
     return 0;
 }

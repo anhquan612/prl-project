@@ -47,12 +47,17 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
 
 int main() {
     string path;
+    int ev;
     cout << "Path of image: ";
     cin >> path;
     im = imread(path, IMREAD_GRAYSCALE);
     averagingSMT();
-    showImage(blurred2);
-    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
-    writeToCSVFile("csv/averagingblur.csv", execTimeData);
+    showImage(im, blurred2);
+    cout << "Calculate execution time? (0/1) ";
+    cin >> ev;
+    if (ev == 1) {
+        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
+        writeToCSVFile("csv/averagingblur.csv", execTimeData);
+    }
     return 0;
 }

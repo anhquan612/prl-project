@@ -63,14 +63,19 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
 
 int main() {
     string path;
+    int ev;
     cout << "Path of image: ";
     cin >> path;
     cout << "Threshold: ";
     cin >> mythreshold;
     gray = imread(path, IMREAD_GRAYSCALE);
     prlGRAY2BIN();
-    showImage(bin);
-    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 20);
-    writeToCSVFile("csv/gray2bin.csv", execTimeData);
+    showImage(gray, bin);
+    cout << "Calculate execution time? (0/1) ";
+    cin >> ev;
+    if (ev == 1) {
+        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
+        writeToCSVFile("csv/gray2bin.csv", execTimeData);
+    }
     return 0;
 }
