@@ -39,7 +39,7 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
     for (int s = minSize; s <= maxSize; s*=2) {
         string sizestr = to_string(s);
         for (int t = 1; t < 5; t*=2) {
-            string path = "../img/test" + sizestr + ".jpg";
+            string path = "img/test" + sizestr + ".jpg";
             Mat im = imread(path, IMREAD_GRAYSCALE);
             double execTime, start, end;
             execTime = 0;
@@ -70,7 +70,7 @@ int main() {
     cout << "Calculate execution time? (0/1) ";
     cin >> ev;
     if (ev == 1) {
-        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
+        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(480, 3840, 1);
         writeToCSVFile("csv/gaussian.csv", execTimeData);
     }
     return 0;

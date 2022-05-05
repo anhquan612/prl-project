@@ -83,15 +83,16 @@ tuple<vector<string>, vector<double>> calExecTime2(int minSize, int maxSize, int
 }
 
 int main() {
-    kernel = (Mat_<double>(3,3) << -1,0,1,-2,0,2,-1,0,1);
+    // kernel = (Mat_<double>(3,3) << -1,0,1,-2,0,2,-1,0,1);
+    kernel = (Mat_<double>(5,5) << 2.0/159,4.0/159,5.0/159,4.0/159,2.0/159,4.0/159,9.0/159,12.0/159,9.0/159,4.0/159,5.0/159,12.0/159,15.0/159,12.0/159,5.0/159,4.0/159,9.0/159,12.0/159,9.0/159,4.0/159,2.0/159,4.0/159,5.0/159,4.0/159,2.0/159);
     string path;
     cout << "Path of image: ";
     cin >> path;
     im = imread(path, IMREAD_GRAYSCALE);
     Mat res = convolve2d(im, kernel);
     res.convertTo(resx, CV_8UC1);
-    showImage(resx);
-    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(500, 4000, 5);
+    showImage(im, resx);
+    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(480, 3840, 1);
     writeToCSVFile("./csv/convolve2d2.csv", execTimeData);
     // cout << calExecTime(&convolve2) << "\n";
     return 0;

@@ -2,7 +2,7 @@
 
 void showImage(cv::Mat im, cv::Mat output1) {
     cv::imshow("Original image", im);
-    cv::imshow("Outpu1", output1);
+    cv::imshow("Output1", output1);
     cv::waitKey(0);
     cv::destroyAllWindows();
 }
@@ -42,10 +42,10 @@ void writeToCSVFile(std::string path, std::tuple<std::vector<std::string>, std::
             fout << rowHeaders.at(i/(maxThreads-1)) << ", ";
         }
         if ((i+1) % (maxThreads-1) != 0) {
-            fout << execTimes.at(i) << ", ";
+            fout << execTimes.at(i)*1000 << ", ";
         }
         else {
-            fout << execTimes.at(i) << "\n";
+            fout << execTimes.at(i)*1000 << "\n";
         }
     }
 }

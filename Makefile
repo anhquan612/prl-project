@@ -1,6 +1,16 @@
 CPPFLAGS=-fopenmp `pkg-config --cflags --libs opencv4`
 REQUIRED=preprocessing.cpp helper.cpp
 
+all: imconvolve grayscale gray2bin rgb2bin sobel prewitt canny laplace usm averaging median gaussian
+
+cvtcolor: grayscale gray2bin rgb2bin
+
+smoothing: averaging median gaussian
+
+sharpening: laplace usm
+
+edgedetect: sobel prewitt canny
+
 imconvolve: imconvolve.cpp $(REQUIRED)
 	g++ imconvolve.cpp $(REQUIRED) -o imconvolve $(CPPFLAGS)
 
