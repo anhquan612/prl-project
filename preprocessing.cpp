@@ -39,6 +39,9 @@ cv::Mat RGB2BIN(cv::Mat im, int mythreshold, int numThreads) {
 cv::Mat convolve2d(cv::Mat im, cv::Mat kernel, int numThreads) {
     omp_set_num_threads(numThreads);
     cv::Mat output1, fkernel;
+    if (im.type() != 0) {
+        im.convertTo(im, CV_8UC1);
+    }
     const int dx = (kernel.rows-1)/2;
     const int dy = (kernel.cols-1)/2;
     output1 = cv::Mat::zeros(cv::Size(im.cols, im.rows), CV_64FC1);
@@ -109,6 +112,111 @@ std::tuple<cv::Mat, cv::Mat> Prewitt(cv::Mat im, int numThreads) {
         }
     }
     return {gradient, theta};
+}
+
+cv::Mat nonmaximumSuppression(cv::Mat gradient, cv::Mat angle, int numThreads=4) {
+    omp_set_num_threads(numThreads);
+    cv::Mat output1 = cv::Mat::zeros(cv::Size(gradient.cols, gradient.rows), CV_64FC1);
+    double a, fr, bh;
+    #pragma omp parallel for collapse(2) shared(gradient, angle, output1) private(a, fr, bh)
+    for (int i = 0; i < gradient.rows; ++i) {
+        for (int j = 0; j < gradient.cols; ++j) {
+            a = angle.at<double>(i,j);
+            fr = 255;
+            bh = 255;
+            if ((0 <= a && a < 22.5) || (157.5 <= a && a <= 180)) {
+                fr = gradient.at<double>(i,j-1);
+                bh = gradient.at<double>(i,j+1);
+            }
+            else if (22.5 <= a && a < 67.5) {
+                fr = gradient.at<double>(i-1,j+1);
+                bh = gradient.at<double>(i+1,j-1);
+            }
+            else if (67.5 <= a && a < 112.5) {
+                fr = gradient.at<double>(i-1,j);
+                bh = gradient.at<double>(i+1,j);
+            }
+            else if (112.5 <= a && a < 157.5) {
+                fr = gradient.at<double>(i-1,j-1);
+                bh = gradient.at<double>(i+1,j+1);
+            }
+            if (gradient.at<double>(i,j) >= fr && gradient.at<double>(i,j) >= bh) {
+                output1.at<double>(i,j) = gradient.at<double>(i,j);
+            }
+            else {
+                output1.at<double>(i,j) = 0;
+            }
+        }
+    }
+    return output1;
+}
+
+bool neighborCheck(cv::Mat im, int i, int j, int higherThreshold, int numThreads=4) {
+    omp_set_num_threads(numThreads);
+    bool res = false;
+    std::vector<int> r = {i-1, i, i+1};
+    std::vector<int> c = {j-1, j, j+1};
+    #pragma omp parallel for collapse(2) shared(r, c)
+    for (int k = 0; k < 3; ++k) {
+        for (int l = 0; l < 3; ++l) {
+            if (res) {
+                continue;
+            }
+            if (im.at<double>(r.at(k),c.at(l)) > higherThreshold) {
+                res = true;
+            }
+        }
+    }
+    return res;
+}
+
+cv::Mat hysteresisThresholding(cv::Mat im, int lowerThreshold, int higherThreshold, int numThreads=4) {
+    omp_set_num_threads(numThreads);
+    double pixelVal;
+    #pragma omp parallel for collapse(2) shared(im) private(pixelVal)
+    for (int i = 0; i < im.rows; ++i) {
+        for (int j = 0; j < im.cols; ++j) {
+            pixelVal = im.at<double>(i,j);
+            if (pixelVal > higherThreshold) {
+                im.at<double>(i,j) = 255.0;
+            }
+            else if (pixelVal >= lowerThreshold && pixelVal <= higherThreshold) {
+                if (neighborCheck(im, i, j, higherThreshold, numThreads) == true) {
+                    im.at<double>(i,j) = 255.0;
+                }
+                else {
+                    im.at<double>(i,j) = 0.0;
+                }
+            }
+            else {
+                im.at<double>(i,j) = 0.0;
+            }
+        }
+    }
+    return im;
+}
+
+cv::Mat Canny2(cv::Mat im, int lowerThreshold, int higherThreshold, int numThreads) {
+    omp_set_num_threads(numThreads);
+    cv::Mat kernel, blurred, gradient, theta, thinned, output1;
+    std::tuple<cv::Mat, cv::Mat> resFromSobel;
+    kernel = (cv::Mat_<double>(5,5) << 2.0/159,4.0/159,5.0/159,4.0/159,2.0/159,4.0/159,9.0/159,12.0/159,9.0/159,4.0/159,5.0/159,12.0/159,15.0/159,12.0/159,5.0/159,4.0/159,9.0/159,12.0/159,9.0/159,4.0/159,2.0/159,4.0/159,5.0/159,4.0/159,2.0/159);
+    blurred = convolve2d(im, kernel, numThreads);
+    resFromSobel = Sobel(blurred, numThreads);
+    gradient = std::get<0>(resFromSobel);
+    theta = std::get<1>(resFromSobel);
+    #pragma omp parallel for collapse(2) shared(theta)
+    for (int i = 0; i < theta.rows; ++i) {
+        for (int j = 0; j < theta.cols; ++j) {
+            theta.at<double>(i,j) = theta.at<double>(i,j)*180.0/M_PI;
+            if (theta.at<double>(i,j) < 0) {
+                theta.at<double>(i,j) += 180.0;
+            }
+        }
+    }
+    thinned = nonmaximumSuppression(gradient, theta, numThreads);
+    output1 = hysteresisThresholding(thinned, lowerThreshold, higherThreshold, numThreads);
+    return output1;
 }
 
 cv::Mat LaplaceSPN(cv::Mat im, double weight, int numThreads) {

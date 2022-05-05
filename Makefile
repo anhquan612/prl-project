@@ -19,6 +19,9 @@ sobel: ./edge-detection/sobel.cpp $(REQUIRED)
 prewitt: ./edge-detection/prewitt.cpp $(REQUIRED)
 	g++ ./edge-detection/prewitt.cpp $(REQUIRED) -o prewitt $(CPPFLAGS)
 
+canny: ./edge-detection/canny.cpp $(REQUIRED)
+	g++ ./edge-detection/canny.cpp $(REQUIRED) -o canny $(CPPFLAGS)
+
 laplace: ./sharpening/laplace.cpp $(REQUIRED)
 	g++ ./sharpening/laplace.cpp $(REQUIRED) -o laplace $(CPPFLAGS)
 
