@@ -92,7 +92,7 @@ int main() {
     Mat res = convolve2d(im, kernel);
     res.convertTo(resx, CV_8UC1);
     showImage(im, resx);
-    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(480, 3840, 1);
+    tuple<vector<string>, vector<double>> execTimeData = calExecTime2(480, 7680, 1);
     writeToCSVFile("./csv/convolve2d2.csv", execTimeData);
     // cout << calExecTime(&convolve2) << "\n";
     return 0;

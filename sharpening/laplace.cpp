@@ -67,7 +67,7 @@ int main() {
     cout << "Calculate execution time? (0/1) ";
     cin >> ev;
     if (ev == 1) {
-        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(480, 3840, 1);
+        tuple<vector<string>, vector<double>> execTimeData = calExecTime2(480, 7680, 1);
         writeToCSVFile("csv/laplacespn.csv", execTimeData);
     }
     return 0;
